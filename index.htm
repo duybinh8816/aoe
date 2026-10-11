@@ -22,23 +22,22 @@
     text-rendering: optimizeLegibility;
   }
 
-  /* Khung bao ngoài toàn màn hình, đưa nội dung vào chính giữa */
-  #container {
+  /* Khung bao ngoài căn giữa toàn màn hình */
+  #wrapper {
     width: 100%;
     height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
-    overflow: hidden;
   }
 
-  /* Khối banner: Gom các hàng nằm sát nhau, đồng nhất tỉ lệ */
+  /* Cụm banner gom 3 dòng nằm sát nhau */
   #banner {
     display: inline-flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 8px; /* Chữ sát các hàng, cách nhau vừa vặn */
+    gap: 10px; /* Khoảng cách giữa các hàng rất sát và đẹp */
     transform-origin: center center;
     white-space: nowrap;
     will-change: transform;
@@ -47,18 +46,18 @@
   .line {
     white-space: nowrap;
     text-align: center;
-    line-height: 1.15;
-    /* Đổ bóng viền đen sắc nét, chống chìm chữ */
+    line-height: 1.1;
+    /* Viền đen đậm quanh chữ giúp cực kỳ sắc nét trên livestream */
     text-shadow: 
       2px 2px 0 #000, -2px -2px 0 #000, 
       2px -2px 0 #000, -2px 2px 0 #000,
-      0 3px 5px rgba(0,0,0,0.85);
+      0 4px 6px rgba(0, 0, 0, 0.9);
   }
 
-  /* Kích thước font chuẩn giúp bố cục cân đối giữa các dòng */
+  /* Cỡ font chuẩn giúp độ to nhỏ giữa 3 dòng đồng đều */
   .line-1 { 
     color: #00ffff; 
-    font-size: 38px;
+    font-size: 38px; 
   }
   .line-2 { 
     color: #ffff00; 
@@ -72,7 +71,7 @@
 </head>
 <body>
 
-  <div id="container">
+  <div id="wrapper">
     <div id="banner">
       <div class="line line-1"><span id="clock">--h--</span> |ibzL..0878--660..+304NHẬN KMÃI</div>
       <div class="line line-2">FULL VIP PRO: 250K/THÁNG</div>
@@ -85,21 +84,20 @@
     const banner = document.getElementById('banner');
     if (!banner) return;
 
-    // Bỏ scale tạm thời để lấy kích thước gốc thực tế
+    // Tạm reset scale để đo kích thước thực tế
     banner.style.transform = 'scale(1)';
 
-    const naturalW = banner.offsetWidth;
-    const naturalH = banner.offsetHeight;
+    const w = banner.offsetWidth;
+    const h = banner.offsetHeight;
+    if (w === 0 || h === 0) return;
 
-    if (naturalW === 0 || naturalH === 0) return;
-
-    // Giới hạn an toàn: Chừa lề trái phải mỗi bên 7% (lấy tối đa 86% màn hình)
-    // Chiều cao lấy tối đa 88% để không chạm trần và đáy
+    // Giới hạn vùng an toàn: chỉ chiếm tối đa 86% chiều rộng và 88% chiều cao
+    // Đảm bảo luôn có khoảng đệm 7% ở cả 2 bên mép trái - phải
     const maxW = window.innerWidth * 0.86;
     const maxH = window.innerHeight * 0.88;
 
-    // Thu/phóng theo tỉ lệ đồng dạng (không kéo dãn méo chữ)
-    const scale = Math.min(maxW / naturalW, maxH / naturalH);
+    // Phóng to/thu nhỏ đồng dạng giữ nguyên tỉ lệ font (không bao giờ méo chữ)
+    const scale = Math.min(maxW / w, maxH / h);
     banner.style.transform = `scale(${scale})`;
   }
 
@@ -120,10 +118,9 @@
     }
   }
 
-  // Tự động căn chỉnh khi thay đổi kích thước khung hình OBS hoặc trình duyệt
   window.addEventListener('resize', autoFit);
 
-  // Khởi chạy ban đầu
+  // Chạy lần đầu
   updateClock();
   autoFit();
   setInterval(updateClock, 1000);
