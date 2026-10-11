@@ -2,6 +2,7 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Overlay Đồng Hồ & Banner</title>
 <style>
   * {
@@ -21,105 +22,110 @@
     text-rendering: optimizeLegibility;
   }
 
+  /* Khung bao ngoài toàn màn hình, đưa nội dung vào chính giữa */
   #container {
     width: 100%;
     height: 100%;
     display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
-    padding: 0 3%; /* Đệm 3% hai bên để không bị dính sát mép */
-  }
-
-  .line {
-    width: 100%;
-    height: 33.33%;
-    display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    white-space: nowrap;
-    text-shadow: 2px 2px 3px #000, -2px -2px 3px #000, 2px -2px 3px #000, -2px 2px 3px #000;
   }
 
-  .txt {
-    display: inline-block;
-    white-space: nowrap;
+  /* Khối banner: Gom các hàng nằm sát nhau, đồng nhất tỉ lệ */
+  #banner {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px; /* Chữ sát các hàng, cách nhau vừa vặn */
     transform-origin: center center;
+    white-space: nowrap;
     will-change: transform;
   }
 
-  .line-1 { color: #00ffff; }
-  .line-2 { color: #ffff00; }
-  .line-3 { color: #ffffff; }
+  .line {
+    white-space: nowrap;
+    text-align: center;
+    line-height: 1.15;
+    /* Đổ bóng viền đen sắc nét, chống chìm chữ */
+    text-shadow: 
+      2px 2px 0 #000, -2px -2px 0 #000, 
+      2px -2px 0 #000, -2px 2px 0 #000,
+      0 3px 5px rgba(0,0,0,0.85);
+  }
+
+  /* Kích thước font chuẩn giúp bố cục cân đối giữa các dòng */
+  .line-1 { 
+    color: #00ffff; 
+    font-size: 38px;
+  }
+  .line-2 { 
+    color: #ffff00; 
+    font-size: 42px; 
+  }
+  .line-3 { 
+    color: #ffffff; 
+    font-size: 42px; 
+  }
 </style>
 </head>
 <body>
 
   <div id="container">
-    <div class="line line-1"><span class="txt" id="txt1"><span id="clock">--h--</span> |ibzL..0878--660..+304NHẬN KMÃI</span></div>
-    <div class="line line-2"><span class="txt" id="txt2">FULL VIP PRO: 250K/THÁNG</span></div>
-    <div class="line line-3"><span class="txt" id="txt3">MÁP SOI HACK: 139K/THÁNG</span></div>
+    <div id="banner">
+      <div class="line line-1"><span id="clock">--h--</span> |ibzL..0878--660..+304NHẬN KMÃI</div>
+      <div class="line line-2">FULL VIP PRO: 250K/THÁNG</div>
+      <div class="line line-3">MÁP SOI HACK: 139K/THÁNG</div>
+    </div>
   </div>
 
 <script>
+  function autoFit() {
+    const banner = document.getElementById('banner');
+    if (!banner) return;
+
+    // Bỏ scale tạm thời để lấy kích thước gốc thực tế
+    banner.style.transform = 'scale(1)';
+
+    const naturalW = banner.offsetWidth;
+    const naturalH = banner.offsetHeight;
+
+    if (naturalW === 0 || naturalH === 0) return;
+
+    // Giới hạn an toàn: Chừa lề trái phải mỗi bên 7% (lấy tối đa 86% màn hình)
+    // Chiều cao lấy tối đa 88% để không chạm trần và đáy
+    const maxW = window.innerWidth * 0.86;
+    const maxH = window.innerHeight * 0.88;
+
+    // Thu/phóng theo tỉ lệ đồng dạng (không kéo dãn méo chữ)
+    const scale = Math.min(maxW / naturalW, maxH / naturalH);
+    banner.style.transform = `scale(${scale})`;
+  }
+
   let lastTimeStr = '';
-
-  function fitLine(el, maxW, maxH) {
-    if (!el) return;
-    // Tạm bỏ scale để lấy kích thước gốc
-    el.style.transform = 'scale(1)';
-    const naturalW = el.offsetWidth;
-    const naturalH = el.offsetHeight;
-
-    if (naturalW > 0 && naturalH > 0) {
-      // Giữ tỉ lệ chữ tự nhiên (không kéo méo bè)
-      const scale = Math.min(maxW / naturalW, maxH / naturalH);
-      el.style.transform = `scale(${scale})`;
-    }
-  }
-
-  function autoFitAll() {
-    const container = document.getElementById('container');
-    const availableW = container.clientWidth;
-    const availableH = (window.innerHeight / 3) * 0.92; // Chừa khoảng cách dòng thoáng mắt
-
-    // Đặt font-size cơ sở một lần
-    const baseFontSize = 40; 
-    for (let i = 1; i <= 3; i++) {
-      const el = document.getElementById('txt' + i);
-      if (el) el.style.fontSize = baseFontSize + 'px';
-    }
-
-    for (let i = 1; i <= 3; i++) {
-      fitLine(document.getElementById('txt' + i), availableW, availableH);
-    }
-  }
-
   function updateClock() {
     const now = new Date();
     const hours = String(now.getHours()).padStart(2, '0');
     const minutes = String(now.getMinutes()).padStart(2, '0');
     const timeStr = `${hours}h${minutes}`;
 
-    // Chỉ cập nhật DOM và tính lại kích thước khi phút thực sự thay đổi
     if (timeStr !== lastTimeStr) {
       lastTimeStr = timeStr;
-      document.getElementById('clock').textContent = timeStr;
-      
-      // Chỉ cần tính lại riêng dòng 1 khi giờ đổi, không cần quét cả 3 dòng
-      const container = document.getElementById('container');
-      fitLine(document.getElementById('txt1'), container.clientWidth, (window.innerHeight / 3) * 0.92);
+      const clockEl = document.getElementById('clock');
+      if (clockEl) {
+        clockEl.textContent = timeStr;
+      }
+      autoFit();
     }
   }
 
-  // Lắng nghe resize màn hình
-  window.addEventListener('resize', autoFitAll);
+  // Tự động căn chỉnh khi thay đổi kích thước khung hình OBS hoặc trình duyệt
+  window.addEventListener('resize', autoFit);
 
-  // Khởi chạy lần đầu
+  // Khởi chạy ban đầu
   updateClock();
-  autoFitAll();
-
-  // Kiểm tra mỗi 1 giây (nhưng chỉ render lại khi đổi phút)
+  autoFit();
   setInterval(updateClock, 1000);
 </script>
 </body>
