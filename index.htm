@@ -22,7 +22,7 @@
     text-rendering: optimizeLegibility;
   }
 
-  /* Khung bao ngoài căn giữa toàn màn hình */
+  /* Khung bao ngoài căn giữa */
   #wrapper {
     width: 100%;
     height: 100%;
@@ -31,13 +31,13 @@
     justify-content: center;
   }
 
-  /* Cụm banner gom 3 dòng nằm sát nhau */
+  /* Cụm banner 4 hàng sát nhau */
   #banner {
     display: inline-flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 10px; /* Khoảng cách giữa các hàng rất sát và đẹp */
+    gap: 6px; /* Khoảng cách giữa các hàng rất sát và đều */
     transform-origin: center center;
     white-space: nowrap;
     will-change: transform;
@@ -46,26 +46,30 @@
   .line {
     white-space: nowrap;
     text-align: center;
-    line-height: 1.1;
-    /* Viền đen đậm quanh chữ giúp cực kỳ sắc nét trên livestream */
+    line-height: 1.15;
+    /* Viền đen đổ bóng sắc nét, chống chìm chữ trên video */
     text-shadow: 
       2px 2px 0 #000, -2px -2px 0 #000, 
       2px -2px 0 #000, -2px 2px 0 #000,
       0 4px 6px rgba(0, 0, 0, 0.9);
   }
 
-  /* Cỡ font chuẩn giúp độ to nhỏ giữa 3 dòng đồng đều */
+  /* Màu sắc và cỡ chữ cân đối cho từng dòng */
   .line-1 { 
-    color: #00ffff; 
-    font-size: 38px; 
+    color: #00ffff; /* Xanh Cyan */
+    font-size: 34px; 
   }
   .line-2 { 
-    color: #ffff00; 
-    font-size: 42px; 
+    color: #00ff88; /* Xanh Neon nổi bật */
+    font-size: 38px; 
   }
   .line-3 { 
-    color: #ffffff; 
-    font-size: 42px; 
+    color: #ffff00; /* Vàng */
+    font-size: 40px; 
+  }
+  .line-4 { 
+    color: #ffffff; /* Trắng */
+    font-size: 40px; 
   }
 </style>
 </head>
@@ -73,9 +77,17 @@
 
   <div id="wrapper">
     <div id="banner">
-      <div class="line line-1"><span id="clock">--h--</span> |ibzL..0878--660..+304NHẬN KMÃI</div>
-      <div class="line line-2">FULL VIP PRO: 250K/THÁNG</div>
-      <div class="line line-3">MÁP SOI HACK: 139K/THÁNG</div>
+      <!-- Dòng 1: Giờ phút ngày tháng + inbox zLa0 -->
+      <div class="line line-1"><span id="clock">--h-- --/--</span> inbox zLa0:</div>
+      
+      <!-- Dòng 2: Số điện thoại + Nhận khuyến mãi -->
+      <div class="line line-2">0878--660..+304 NHẬN KHUYẾN MÃI</div>
+      
+      <!-- Dòng 3: Full Vip Pro -->
+      <div class="line line-3">FULL VIP PRO: 250K/THÁNG</div>
+      
+      <!-- Dòng 4: Máp soi hack -->
+      <div class="line line-4">MÁP SOI HACK: 139K/THÁNG</div>
     </div>
   </div>
 
@@ -84,19 +96,19 @@
     const banner = document.getElementById('banner');
     if (!banner) return;
 
-    // Tạm reset scale để đo kích thước thực tế
+    // Reset scale tạm thời để lấy kích thước gốc
     banner.style.transform = 'scale(1)';
 
     const w = banner.offsetWidth;
     const h = banner.offsetHeight;
     if (w === 0 || h === 0) return;
 
-    // Giới hạn vùng an toàn: chỉ chiếm tối đa 86% chiều rộng và 88% chiều cao
-    // Đảm bảo luôn có khoảng đệm 7% ở cả 2 bên mép trái - phải
+    // Giới hạn an toàn: Rộng tối đa 86%, Cao tối đa 90%
+    // Đảm bảo 2 bên mép luôn có khoảng đệm 7% an toàn, không bao giờ bị cắt chữ
     const maxW = window.innerWidth * 0.86;
-    const maxH = window.innerHeight * 0.88;
+    const maxH = window.innerHeight * 0.90;
 
-    // Phóng to/thu nhỏ đồng dạng giữ nguyên tỉ lệ font (không bao giờ méo chữ)
+    // Thu/phóng đồng dạng giữ nguyên tỉ lệ (chữ không bao giờ bị méo bẹp)
     const scale = Math.min(maxW / w, maxH / h);
     banner.style.transform = `scale(${scale})`;
   }
@@ -106,7 +118,11 @@
     const now = new Date();
     const hours = String(now.getHours()).padStart(2, '0');
     const minutes = String(now.getMinutes()).padStart(2, '0');
-    const timeStr = `${hours}h${minutes}`;
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    
+    // Định dạng: Giờ:phút Ngày/tháng (ví dụ: 10h14 11/10)
+    const timeStr = `${hours}h${minutes} ${day}/${month}`;
 
     if (timeStr !== lastTimeStr) {
       lastTimeStr = timeStr;
@@ -120,7 +136,7 @@
 
   window.addEventListener('resize', autoFit);
 
-  // Chạy lần đầu
+  // Khởi chạy ngay khi tải trang
   updateClock();
   autoFit();
   setInterval(updateClock, 1000);
